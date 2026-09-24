@@ -1,0 +1,155 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-950 text-slate-100 antialiased font-sans min-h-screen selection:bg-brand-500 selection:text-white;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
+
+@layer components {
+  /* Glass Panel */
+  .glass-panel {
+    @apply bg-slate-900/80 backdrop-blur-md border border-slate-800 shadow-lg rounded-2xl;
+  }
+
+  /* Premium Card */
+  .premium-card {
+    @apply bg-slate-900 rounded-3xl border border-slate-800 shadow-md hover:shadow-xl hover:border-slate-700 transition-all duration-300;
+  }
+
+  /* Health Badges */
+  .health-badge {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold tracking-wide;
+  }
+
+  .health-badge-success {
+    @apply bg-emerald-50 text-emerald-700 border border-emerald-200;
+  }
+
+  .health-badge-warning {
+    @apply bg-amber-50 text-amber-700 border border-amber-200;
+  }
+
+  .health-badge-danger {
+    @apply bg-rose-50 text-rose-700 border border-rose-200;
+  }
+
+  .health-badge-info {
+    @apply bg-sky-50 text-sky-700 border border-sky-200;
+  }
+
+  .health-badge-neutral {
+    @apply bg-slate-800 text-slate-300 border border-slate-700;
+  }
+
+  /* Premium Buttons */
+  .btn-primary {
+    @apply px-6 py-3 rounded-full bg-brand-600 hover:bg-brand-700 text-white font-bold shadow-[0_4px_14px_-3px_rgba(215,25,32,0.4)] hover:shadow-[0_6px_20px_-3px_rgba(215,25,32,0.5)] transition-all hover:-translate-y-0.5;
+  }
+
+  .btn-secondary {
+    @apply px-6 py-3 rounded-full bg-slate-800 text-slate-100 border border-slate-700 font-bold hover:bg-slate-700 transition-all hover:-translate-y-0.5;
+  }
+
+  /* KPI Card */
+  .kpi-card {
+    @apply bg-slate-900 rounded-2xl border border-slate-800 p-5 shadow-sm hover:shadow-md hover:border-slate-700 transition-all;
+  }
+
+  /* Section Reveal Animation */
+  .reveal-on-scroll {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal-on-scroll.revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Subtle Pulse Glow */
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Blood Drop Animation — more refined */
+@keyframes blood-drop-fall {
+  0% {
+    transform: translateY(-60px) scaleY(0.8) scaleX(0.9);
+    opacity: 0;
+  }
+  15% {
+    transform: translateY(-40px) scaleY(1) scaleX(1);
+    opacity: 1;
+  }
+  75% {
+    transform: translateY(120px) scaleY(1.05) scaleX(0.95);
+    opacity: 1;
+  }
+  82% {
+    transform: translateY(140px) scaleY(0.6) scaleX(1.2);
+    opacity: 0.6;
+  }
+  90%, 100% {
+    transform: translateY(140px) scaleY(0) scaleX(0);
+    opacity: 0;
+  }
+}
+
+@keyframes ripple-ring {
+  0%, 75% {
+    transform: scale(0);
+    opacity: 0;
+    border-width: 3px;
+  }
+  80% {
+    transform: scale(0.5);
+    opacity: 0.8;
+    border-width: 3px;
+  }
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+    border-width: 1px;
+  }
+}
+
+/* Counter animation */
+@keyframes count-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-count-up {
+  animation: count-up 0.6s ease-out forwards;
+}
+
+/* Navbar top padding for fixed nav */
+main {
+  padding-top: 64px;
+}

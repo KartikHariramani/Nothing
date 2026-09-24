@@ -1,0 +1,29 @@
+# Life Share Backend — Render.com Deployment Configuration
+# https://render.com/docs/deploy-fastapi
+
+services:
+  - type: web
+    name: lifeshare-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DATABASE_URL
+        sync: false  # Set manually in Render dashboard
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGINS
+        sync: false  # Set to your Netlify URL
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_BOT_USERNAME
+        value: life_share_bot
+      - key: OLLAMA_BASE_URL
+        value: ""  # Disabled in production; graceful fallback
+      - key: OLLAMA_MODEL
+        value: qwen2.5:latest
+    healthCheckPath: /health
+    plan: free

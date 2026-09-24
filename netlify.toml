@@ -1,0 +1,39 @@
+# Life Share — Netlify Production Deployment Configuration
+# Architecture: Netlify (frontend) → External API (backend on Render/Railway/etc.)
+
+[build]
+  base = "frontend"
+  publish = "dist"
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# SPA Fallback: Route all non-asset, non-API requests to index.html
+# This ensures React's client-side routing works for all paths
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Security and caching headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+
+# Aggressive caching for hashed assets (Vite generates unique filenames)
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Cache fonts
+[[headers]]
+  for = "*.woff2"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
