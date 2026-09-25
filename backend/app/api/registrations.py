@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.models.models import Registration, Campaign, Slot, User, ConsentLog
 from app.schemas.schemas import RegistrationCreate, RegistrationResponse, RegistrationStatusUpdate
-from app.api.auth import get_current_user, get_current_organizer_or_admin
+from app.api.auth import get_current_user, get_current_organizer
 from app.services.consent_service import consent_service
 from app.services.ml_service import ml_service
 from app.services.telegram_service import telegram_service
@@ -131,15 +131,19 @@ async def create_registration(
     )
 
     # Send confirmation/waitlist message via Telegram
-    msg_type = "registration_confirmation" if initial_status == "registered" else "waitlist_notification"
-    await telegram_service.send_mobilisation_message(
-        db=db,
-        donor_id=donor.id,
-        message_type=msg_type,
-        campaign_id=campaign.id,
-        registration_id=new_reg.id,
-        actor_id=donor.id
-    )
+    try:
+        msg_type = "registration_confirmation" if initial_status == "registered" else "waitlist_notification"
+        await telegram_service.send_mobilisation_message(
+            db=db,
+            donor_id=donor.id,
+            message_type=msg_type,
+            campaign_id=campaign.id,
+            registration_id=new_reg.id,
+            actor_id=donor.id
+        )
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error(f"Telegram service failed: {e}")
 
     return enrich_registration_response(new_reg, db)
 
@@ -186,14 +190,18 @@ async def confirm_registration(
     )
 
     # Telegram Slot Confirmation
-    await telegram_service.send_mobilisation_message(
-        db=db,
-        donor_id=reg.donor_id,
-        message_type="slot_confirmation",
-        campaign_id=reg.campaign_id,
-        registration_id=reg.id,
-        actor_id=current_user.id
-    )
+    try:
+        await telegram_service.send_mobilisation_message(
+            db=db,
+            donor_id=reg.donor_id,
+            message_type="slot_confirmation",
+            campaign_id=reg.campaign_id,
+            registration_id=reg.id,
+            actor_id=current_user.id
+        )
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error(f"Telegram service failed: {e}")
 
     return enrich_registration_response(reg, db)
 
@@ -241,22 +249,30 @@ async def cancel_registration(
     )
 
     # Send cancellation acknowledgement to donor
-    await telegram_service.send_mobilisation_message(
-        db=db,
-        donor_id=reg.donor_id,
-        message_type="cancellation_ack",
-        campaign_id=campaign_id,
-        registration_id=reg.id,
-        actor_id=current_user.id
-    )
+    try:
+        await telegram_service.send_mobilisation_message(
+            db=db,
+            donor_id=reg.donor_id,
+            message_type="cancellation_ack",
+            campaign_id=campaign_id,
+            registration_id=reg.id,
+            actor_id=current_user.id
+        )
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error(f"Telegram service failed: {e}")
 
     # 🚀 TRIGGER DYNAMIC QUEUE ENGINE TO FILL FREED CAPACITY
-    await queue_engine.rebalance_and_promote(
-        db=db,
-        campaign_id=campaign_id,
-        slot_time=cancelled_slot_time,
-        actor_id=current_user.id
-    )
+    try:
+        await queue_engine.rebalance_and_promote(
+            db=db,
+            campaign_id=campaign_id,
+            slot_time=cancelled_slot_time,
+            actor_id=current_user.id
+        )
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error(f"Queue engine failed: {e}")
 
     return enrich_registration_response(reg, db)
 
@@ -272,7 +288,7 @@ def get_my_registrations(
 def get_campaign_registrations(
     campaign_id: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_organizer_or_admin)
+    current_user: User = Depends(get_current_organizer)
 ):
     campaign = db.query(Campaign).filter(Campaign.id == campaign_id).first()
     if not campaign:

@@ -59,6 +59,17 @@ class QRService:
                 "message": "This QR pass belongs to a different campaign."
             }
 
+        # Organizer authorization check
+        verifier = db.query(User).filter(User.id == verified_by).first()
+        if verifier and verifier.role == "organizer":
+            camp = db.query(Campaign).filter(Campaign.id == reg.campaign_id).first()
+            if camp and camp.organizer_id != verifier.id:
+                return {
+                    "valid": False,
+                    "status": "unauthorized",
+                    "message": "You do not have permission to check in this donor."
+                }
+
         # Check for Duplicate Scan
         if reg.qr_used or reg.status == "attended":
             # Audit log duplicate attempt

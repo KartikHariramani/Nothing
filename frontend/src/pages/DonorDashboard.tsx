@@ -129,12 +129,12 @@ export const DonorDashboard: React.FC<DonorDashboardProps> = ({ setCurrentTab })
         </div>
 
         <a
-          href="https://t.me/life_share_bot"
+          href={`https://t.me/life_share_bot?start=${user?.id}`}
           target="_blank"
           rel="noopener noreferrer"
           className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs shadow-sm flex items-center gap-1.5 transition-all flex-shrink-0"
         >
-          <span>Open @life_share_bot</span>
+          <span>Connect with Telegram</span>
           <ExternalLink className="w-3.5 h-3.5" />
         </a>
       </div>

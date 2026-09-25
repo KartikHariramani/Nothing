@@ -28,28 +28,35 @@ class DynamicQueueEngine:
             Registration.status == "waitlisted"
         )
         
-        if slot_time:
-            # First look for candidates requesting this specific slot
-            slot_candidates = query.filter(Registration.slot_time == slot_time).all()
-            if not slot_candidates:
-                # If none for exact slot, look for general waitlist in campaign
-                slot_candidates = query.all()
-        else:
-            slot_candidates = query.all()
+        # Lock campaign slot capacity (conceptually, lock candidates)
+        slot_candidates = query.with_for_update().all()
 
         if not slot_candidates:
             logger.info(f"Dynamic Queue: No waitlisted donors found for campaign {campaign_id}")
             return None
 
         # 2. Score and Rank candidates
-        # Ranking formula: predicted_attendance_score (DESC), then registration created_at (ASC)
+        # queue_score = prediction_score * 0.50 + responsiveness_score * 0.20 + slot_match_score * 0.15 + registration_priority * 0.15
         campaign = db.query(Campaign).filter(Campaign.id == campaign_id).first()
+        now = datetime.now(timezone.utc)
         
         scored_candidates = []
         for reg in slot_candidates:
             donor = db.query(User).filter(User.id == reg.donor_id).first()
-            score, explanation, _ = ml_service.predict_score(reg, donor, campaign)
-            reg.predicted_attendance_score = score
+            pred_score, explanation, _ = ml_service.predict_score(reg, donor, campaign)
+            
+            # Sub-scores
+            prediction_score = pred_score # already 0.0 - 1.0
+            responsiveness_score = 1.0 if reg.reminder_stage in ["t_minus_1", "t_day"] else 0.0
+            slot_match_score = 1.0 if (slot_time and reg.slot_time == slot_time) else 0.5
+            
+            # Registration priority (older = better, max out at 14 days)
+            age_days = max(0, (now - (reg.created_at.replace(tzinfo=timezone.utc) if reg.created_at.tzinfo is None else reg.created_at)).days)
+            registration_priority = min(1.0, age_days / 14.0)
+            
+            queue_score = (prediction_score * 0.50) + (responsiveness_score * 0.20) + (slot_match_score * 0.15) + (registration_priority * 0.15)
+
+            reg.predicted_attendance_score = pred_score
             reg.prediction_explanation = explanation
             reg.last_scored_at = datetime.now(timezone.utc)
             db.commit()
@@ -57,12 +64,12 @@ class DynamicQueueEngine:
             scored_candidates.append({
                 "registration": reg,
                 "donor": donor,
-                "score": score,
+                "queue_score": queue_score,
                 "created_at": reg.created_at
             })
 
-        # Sort: Highest score first, then earliest created_at
-        scored_candidates.sort(key=lambda x: (-x["score"], x["created_at"]))
+        # Sort: Highest queue_score first
+        scored_candidates.sort(key=lambda x: -x["queue_score"])
 
         selected = scored_candidates[0]
         promoted_reg: Registration = selected["registration"]

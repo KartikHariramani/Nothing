@@ -19,8 +19,12 @@ import {
   Bot,
   Zap,
   Activity,
-  Layers
+  Layers,
+  QrCode,
+  Share2
 } from 'lucide-react';
+import { QRScannerTab } from '../components/organizer/QRScannerTab';
+import { CampaignShareModal } from '../components/organizer/CampaignShareModal';
 
 export const OrganizerDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -31,6 +35,8 @@ export const OrganizerDashboard: React.FC = () => {
   const [isAiOpen, setIsAiOpen] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<'overview' | 'scanner'>('overview');
+  const [createdCampaign, setCreatedCampaign] = useState<Campaign | null>(null);
 
   // New Campaign Form State
   const [name, setName] = useState('');
@@ -100,7 +106,8 @@ export const OrganizerDashboard: React.FC = () => {
         setShowCreateModal(false);
         setFormMsg(null);
         fetchCampaigns();
-      }, 2500);
+        setCreatedCampaign(created);
+      }, 2000);
     } catch (e: any) {
       console.error(e);
       setFormMsg(e.response?.data?.detail || 'Failed to create campaign.');
@@ -143,6 +150,31 @@ export const OrganizerDashboard: React.FC = () => {
         </div>
       </div>
 
+      {selectedCampaign && (
+        <div className="flex items-center gap-2 border-b border-slate-200 mb-4 pb-2">
+          <button
+            onClick={() => setActiveTab('overview')}
+            className={`px-4 py-2 font-bold text-sm ${activeTab === 'overview' ? 'text-brand-600 border-b-2 border-brand-600' : 'text-slate-500'}`}
+          >
+            Overview & Telemetry
+          </button>
+          <button
+            onClick={() => setActiveTab('scanner')}
+            className={`px-4 py-2 font-bold text-sm flex items-center gap-2 ${activeTab === 'scanner' ? 'text-brand-600 border-b-2 border-brand-600' : 'text-slate-500'}`}
+          >
+            <QrCode className="w-4 h-4" />
+            QR Scanner
+          </button>
+          <button
+            onClick={() => setCreatedCampaign(selectedCampaign)}
+            className="px-4 py-2 font-bold text-sm flex items-center gap-2 text-slate-500 hover:text-brand-600 ml-auto"
+          >
+            <Share2 className="w-4 h-4" />
+            Share Campaign
+          </button>
+        </div>
+      )}
+
       {/* Campaign Selector Pills */}
       <div className="flex items-center gap-2 overflow-x-auto pb-2">
         {campaigns.map((c) => (
@@ -165,7 +197,7 @@ export const OrganizerDashboard: React.FC = () => {
         ))}
       </div>
 
-      {selectedCampaign && analytics && (
+      {selectedCampaign && analytics && activeTab === 'overview' && (
         <>
           {/* Key Metrics Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
@@ -288,6 +320,10 @@ export const OrganizerDashboard: React.FC = () => {
             </div>
           </div>
         </>
+      )}
+
+      {selectedCampaign && activeTab === 'scanner' && (
+        <QRScannerTab campaign={selectedCampaign} />
       )}
 
       {/* AI Assistant Drawer */}
@@ -437,6 +473,11 @@ export const OrganizerDashboard: React.FC = () => {
             </form>
           </div>
         </div>
+      )}
+
+      {/* Campaign Share Modal */}
+      {createdCampaign && (
+        <CampaignShareModal campaign={createdCampaign} onClose={() => setCreatedCampaign(null)} />
       )}
     </div>
   );

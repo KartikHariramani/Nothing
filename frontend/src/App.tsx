@@ -46,7 +46,7 @@ const AppContent: React.FC = () => {
         return <DonorDashboard setCurrentTab={setCurrentTab} />;
       case 'organizer':
         if (!user) return <LoginPage setCurrentTab={setCurrentTab} />;
-        if (user.role !== 'organizer' && user.role !== 'admin') {
+        if (user.role !== 'organizer') {
           return <LandingPage setCurrentTab={setCurrentTab} setSelectedCampaign={setSelectedCampaign} />;
         }
         return <OrganizerDashboard />;
@@ -56,7 +56,7 @@ const AppContent: React.FC = () => {
         }
         return <AdminDashboard />;
       case 'volunteer':
-        if (!user || (user.role !== 'volunteer' && user.role !== 'admin')) {
+        if (!user || user.role !== 'volunteer') {
           return <LoginPage setCurrentTab={setCurrentTab} />;
         }
         return <VolunteerScannerPage />;

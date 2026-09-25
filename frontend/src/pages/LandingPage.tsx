@@ -5,8 +5,14 @@ import { CampaignCard } from '../components/campaigns/CampaignCard';
 import { RegistrationModal } from '../components/campaigns/RegistrationModal';
 import { 
   Heart, Sparkles, ArrowRight, CheckCircle2, Users, Calendar, 
-  ShieldCheck, QrCode, Zap, Bell, Activity, ChevronRight, TrendingUp, Droplet, Smartphone, Clock
+  ShieldCheck, QrCode, Zap, Bell, Activity, ChevronRight, ChevronLeft, TrendingUp, Droplet, Smartphone, Clock
 } from 'lucide-react';
+
+const heroImages = [
+  '/images/WhatsApp Image 2026-09-11 at 4.23.51 PM.jpeg',
+  '/images/WhatsApp Image 2026-09-16 at 8.13.17 AM (1).jpeg',
+  '/images/WhatsApp Image 2026-09-16 at 8.13.17 AM.jpeg',
+];
 
 interface LandingPageProps {
   setCurrentTab: (tab: string) => void;
@@ -16,6 +22,17 @@ interface LandingPageProps {
 export const LandingPage: React.FC<LandingPageProps> = ({ setCurrentTab, setSelectedCampaign }) => {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [selectedRegCamp, setSelectedRegCamp] = useState<Campaign | null>(null);
+  const [currentImageIdx, setCurrentImageIdx] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIdx((prev) => (prev + 1) % heroImages.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const nextImage = () => setCurrentImageIdx((prev) => (prev + 1) % heroImages.length);
+  const prevImage = () => setCurrentImageIdx((prev) => (prev - 1 + heroImages.length) % heroImages.length);
 
   useEffect(() => {
     campaignService.getPublicCampaigns()
@@ -87,48 +104,42 @@ export const LandingPage: React.FC<LandingPageProps> = ({ setCurrentTab, setSele
             </div>
           </div>
 
-          {/* Hero Side Story Timeline */}
-          <div className="lg:w-1/3 w-full bg-white/60 backdrop-blur-md p-8 rounded-3xl border border-white shadow-xl animate-fade-in" style={{ animationDelay: '0.6s' }}>
-            <div className="space-y-8 relative before:absolute before:inset-0 before:ml-[1.1rem] before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-brand-100 before:via-brand-300 before:to-brand-600">
+          {/* Hero Autoplay Slideshow */}
+          <div className="lg:w-1/3 w-full animate-fade-in" style={{ animationDelay: '0.6s' }}>
+            <div className="relative w-full aspect-[3/4] sm:aspect-square lg:aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl border border-white/40 bg-slate-900 group">
+              {heroImages.map((src, idx) => (
+                <img
+                  key={src}
+                  src={src}
+                  alt={`Blood Donation Drive ${idx + 1}`}
+                  className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-700 ease-in-out ${
+                    idx === currentImageIdx ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                  }`}
+                />
+              ))}
               
-              <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                <div className="flex items-center justify-center w-9 h-9 rounded-full border-4 border-white bg-brand-100 text-brand-600 shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-sm z-10">
-                  <Heart className="w-4 h-4" />
-                </div>
-                <div className="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-2xl bg-white border border-slate-100 shadow-sm transition-all hover:shadow-md">
-                  <h3 className="font-bold text-navy-900 text-sm">Discover</h3>
-                  <p className="text-xs text-slate-500 mt-1">Find nearby blood donation campaigns.</p>
-                </div>
+              {/* Controls */}
+              <div className="absolute inset-0 z-20 flex items-center justify-between p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button onClick={prevImage} className="w-10 h-10 rounded-full bg-white/80 hover:bg-white text-navy-900 flex items-center justify-center shadow-[0_4px_12px_rgba(0,0,0,0.3)] backdrop-blur-sm transition-all focus:outline-none">
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+                <button onClick={nextImage} className="w-10 h-10 rounded-full bg-white/80 hover:bg-white text-navy-900 flex items-center justify-center shadow-[0_4px_12px_rgba(0,0,0,0.3)] backdrop-blur-sm transition-all focus:outline-none">
+                  <ChevronRight className="w-6 h-6" />
+                </button>
               </div>
 
-              <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                <div className="flex items-center justify-center w-9 h-9 rounded-full border-4 border-white bg-brand-200 text-brand-600 shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-sm z-10">
-                  <Calendar className="w-4 h-4" />
-                </div>
-                <div className="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-2xl bg-white border border-slate-100 shadow-sm transition-all hover:shadow-md">
-                  <h3 className="font-bold text-navy-900 text-sm">Register</h3>
-                  <p className="text-xs text-slate-500 mt-1">Choose your preferred time slot.</p>
-                </div>
-              </div>
-
-              <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                <div className="flex items-center justify-center w-9 h-9 rounded-full border-4 border-white bg-brand-400 text-white shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-sm z-10">
-                  <Smartphone className="w-4 h-4" />
-                </div>
-                <div className="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-2xl bg-white border border-slate-100 shadow-sm transition-all hover:shadow-md">
-                  <h3 className="font-bold text-navy-900 text-sm">Get Reminders</h3>
-                  <p className="text-xs text-slate-500 mt-1">Receive timely updates via Telegram.</p>
-                </div>
-              </div>
-
-              <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                <div className="flex items-center justify-center w-9 h-9 rounded-full border-4 border-white bg-brand-600 text-white shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-sm z-10 shadow-brand-500/50">
-                  <Zap className="w-4 h-4" />
-                </div>
-                <div className="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-2xl bg-white border border-slate-100 shadow-sm transition-all hover:shadow-md">
-                  <h3 className="font-bold text-brand-600 text-sm">Make an Impact</h3>
-                  <p className="text-xs text-slate-500 mt-1">Show up and save lives.</p>
-                </div>
+              {/* Indicators */}
+              <div className="absolute bottom-6 left-0 right-0 z-20 flex justify-center gap-2">
+                {heroImages.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentImageIdx(idx)}
+                    aria-label={`Go to slide ${idx + 1}`}
+                    className={`w-2.5 h-2.5 rounded-full transition-all shadow-[0_2px_4px_rgba(0,0,0,0.4)] focus:outline-none ${
+                      idx === currentImageIdx ? 'bg-brand-500 scale-125' : 'bg-white/70 hover:bg-white'
+                    }`}
+                  />
+                ))}
               </div>
             </div>
           </div>

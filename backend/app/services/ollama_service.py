@@ -3,6 +3,7 @@ import json
 import logging
 from typing import Optional, Dict, Any, List
 from app.core.config import settings
+from app.models.models import User, Campaign
 
 logger = logging.getLogger(__name__)
 
@@ -34,15 +35,16 @@ class OllamaService:
             return None
         return None
 
-    async def generate_personalized_message(
+    async def generate_message(
         self,
-        message_type: str,
-        donor_name: str,
-        campaign_name: str,
-        slot_time: str,
-        venue: str,
-        drive_date: str,
-        language: str = "en"
+        donor: User,
+        campaign: Campaign,
+        communication_stage: str,
+        time_remaining: str,
+        previous_response: str,
+        confirmation_status: str,
+        slot_time: str = "General Slot",
+        preferred_language: str = "en"
     ) -> Dict[str, str]:
         """
         Generate warm, trustworthy donor mobilization message.
@@ -55,14 +57,21 @@ class OllamaService:
             "Focus only on slot confirmation, venue logistics, and encouraging attendance."
         )
         
+        donor_name = donor.full_name if donor else "Valued Donor"
+        campaign_name = campaign.name if campaign else "Blood Donation Drive"
+        venue = campaign.venue if campaign else "Designated Venue"
+        drive_date = campaign.drive_date if campaign else "Upcoming Date"
+        
         prompt = (
-            f"Generate a concise Telegram message (max 3 sentences) in {language} for:\n"
-            f"Type: {message_type}\n"
+            f"Generate a concise Telegram message (max 3 sentences) in {preferred_language} for:\n"
+            f"Stage: {communication_stage}\n"
             f"Donor: {donor_name}\n"
             f"Campaign: {campaign_name}\n"
-            f"Slot: {slot_time}\n"
-            f"Date: {drive_date}\n"
-            f"Venue: {venue}\n"
+            f"Time Remaining: {time_remaining}\n"
+            f"Previous Response: {previous_response}\n"
+            f"Status: {confirmation_status}\n"
+            f"Slot Time: {slot_time}\n"
+            f"Date/Venue: {drive_date} at {venue}\n"
         )
         
         ai_response = await self._query_ollama(prompt, system_instruction)
@@ -102,7 +111,7 @@ class OllamaService:
             )
         }
         
-        content = templates.get(message_type, f"Update regarding {campaign_name} for {donor_name}: Slot {slot_time} on {drive_date} at {venue}.")
+        content = templates.get(communication_stage, f"Update regarding {campaign_name} for {donor_name}: Drive is on {drive_date} at {venue}.")
         return {"content": content, "generated_by": "template_fallback"}
 
     async def answer_organizer_query(

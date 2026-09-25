@@ -121,14 +121,35 @@ class TelegramService:
             content = custom_content
             generated_by = "custom_or_organizer"
         else:
-            msg_res = await ollama_service.generate_personalized_message(
-                message_type=message_type,
-                donor_name=donor_name,
-                campaign_name=campaign_name,
+            time_remaining = "Upcoming"
+            if campaign and campaign.drive_date:
+                try:
+                    drive_dt = datetime.strptime(f"{campaign.drive_date} {campaign.start_time}", "%Y-%m-%d %H:%M")
+                    from datetime import datetime
+                    now = datetime.now()
+                    delta = drive_dt - now
+                    if delta.days > 0:
+                        time_remaining = f"{delta.days} days"
+                    else:
+                        time_remaining = f"{int(delta.total_seconds() / 3600)} hours"
+                except Exception:
+                    pass
+
+            previous_response = "None"
+            if registration and registration.qr_used:
+                previous_response = "Checked in"
+            
+            status = registration.status if registration else "unknown"
+
+            msg_res = await ollama_service.generate_message(
+                donor=donor,
+                campaign=campaign,
+                communication_stage=message_type,
+                time_remaining=time_remaining,
+                previous_response=previous_response,
+                confirmation_status=status,
                 slot_time=slot_time,
-                venue=venue,
-                drive_date=drive_date,
-                language=language
+                preferred_language=language
             )
             content = msg_res["content"]
             generated_by = msg_res["generated_by"]
@@ -215,9 +236,15 @@ class TelegramService:
                 text = msg.get("text", "").strip()
 
                 # Automatically link this chat_id to the most recent / active donor if not already linked
-                matching_user = db.query(User).filter(
-                    (User.telegram_chat_id == chat_id) | (User.email == "aarav@gmail.com")
-                ).first()
+                matching_user = None
+                if text.startswith("/start ") and len(text.split(" ")) > 1:
+                    user_id = text.split(" ")[1]
+                    matching_user = db.query(User).filter(User.id == user_id).first()
+                
+                if not matching_user:
+                    matching_user = db.query(User).filter(
+                        (User.telegram_chat_id == chat_id) | (User.email == "aarav@gmail.com")
+                    ).first()
 
                 if matching_user:
                     matching_user.telegram_chat_id = chat_id

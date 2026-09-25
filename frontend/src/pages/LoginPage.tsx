@@ -38,8 +38,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({ setCurrentTab }) => {
             <Droplet className="w-8 h-8 text-brand-600" />
           </div>
           <div>
-            <h1 className="text-3xl font-extrabold text-white">Welcome back</h1>
-            <p className="text-slate-400 mt-2">Sign in to your Life Share account</p>
+            <h1 className="text-3xl font-extrabold text-navy-900">Welcome back</h1>
+            <p className="text-slate-500 mt-2">Sign in to your Life Share account</p>
           </div>
         </div>
 

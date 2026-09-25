@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    @apply bg-slate-950 text-slate-100 antialiased font-sans min-h-screen selection:bg-brand-500 selection:text-white;
+    @apply bg-slate-50 text-slate-900 antialiased font-sans min-h-screen selection:bg-brand-500 selection:text-white;
   }
 
   /* Smooth scrolling */
@@ -28,12 +28,12 @@
 @layer components {
   /* Glass Panel */
   .glass-panel {
-    @apply bg-slate-900/80 backdrop-blur-md border border-slate-800 shadow-lg rounded-2xl;
+    @apply bg-white/80 backdrop-blur-md border border-slate-200 shadow-lg rounded-2xl;
   }
 
   /* Premium Card */
   .premium-card {
-    @apply bg-slate-900 rounded-3xl border border-slate-800 shadow-md hover:shadow-xl hover:border-slate-700 transition-all duration-300;
+    @apply bg-white rounded-3xl border border-slate-200 shadow-md hover:shadow-xl hover:border-slate-300 transition-all duration-300;
   }
 
   /* Health Badges */
@@ -58,7 +58,7 @@
   }
 
   .health-badge-neutral {
-    @apply bg-slate-800 text-slate-300 border border-slate-700;
+    @apply bg-slate-100 text-slate-700 border border-slate-200;
   }
 
   /* Premium Buttons */
@@ -67,12 +67,12 @@
   }
 
   .btn-secondary {
-    @apply px-6 py-3 rounded-full bg-slate-800 text-slate-100 border border-slate-700 font-bold hover:bg-slate-700 transition-all hover:-translate-y-0.5;
+    @apply px-6 py-3 rounded-full bg-white text-slate-900 border border-slate-200 font-bold hover:bg-slate-50 transition-all hover:-translate-y-0.5 shadow-sm;
   }
 
   /* KPI Card */
   .kpi-card {
-    @apply bg-slate-900 rounded-2xl border border-slate-800 p-5 shadow-sm hover:shadow-md hover:border-slate-700 transition-all;
+    @apply bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:shadow-md hover:border-slate-300 transition-all;
   }
 
   /* Section Reveal Animation */

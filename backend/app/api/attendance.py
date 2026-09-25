@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.models.models import Attendance, Registration, Campaign, User
 from app.schemas.schemas import QRCheckInRequest, AttendanceResponse
-from app.api.auth import get_current_user, get_current_volunteer_or_admin
+from app.api.auth import get_current_user, get_scanner_role
 from app.services.qr_service import qr_service
 
 router = APIRouter(prefix="/attendance", tags=["Attendance & QR Verification"])
@@ -13,7 +13,7 @@ router = APIRouter(prefix="/attendance", tags=["Attendance & QR Verification"])
 async def process_qr_checkin(
     checkin_in: QRCheckInRequest,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_volunteer_or_admin)
+    current_user: User = Depends(get_scanner_role)
 ):
     """
     Volunteer scans QR token to record administrative attendance.
@@ -35,7 +35,7 @@ async def process_qr_checkin(
 def get_campaign_attendance(
     campaign_id: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_volunteer_or_admin)
+    current_user: User = Depends(get_scanner_role)
 ):
     attendances = db.query(Attendance).filter(Attendance.campaign_id == campaign_id).order_by(Attendance.checked_in_at.desc()).all()
     res = []

@@ -39,10 +39,10 @@ export const CampaignsPage: React.FC<CampaignsPageProps> = ({ setCurrentTab, set
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
       {/* Header */}
       <div className="text-center space-y-4">
-        <h1 className="text-4xl sm:text-5xl font-extrabold text-white">
+        <h1 className="text-4xl sm:text-5xl font-extrabold text-navy-900">
           Find a Campaign Near You
         </h1>
-        <p className="text-lg text-slate-400 max-w-2xl mx-auto">
+        <p className="text-lg text-slate-600 max-w-2xl mx-auto">
           Browse verified blood drives, select your preferred time window, and make a direct impact in your community.
         </p>
       </div>
@@ -86,8 +86,8 @@ export const CampaignsPage: React.FC<CampaignsPageProps> = ({ setCurrentTab, set
           </div>
         ) : !error && campaigns.length === 0 ? (
           <div className="col-span-full py-20 text-center">
-            <Droplet className="w-16 h-16 text-slate-800 mx-auto mb-4" />
-            <p className="text-xl font-bold text-slate-300 mb-2">No campaigns found</p>
+            <Droplet className="w-16 h-16 text-slate-400 mx-auto mb-4" />
+            <p className="text-xl font-bold text-slate-800 mb-2">No campaigns found</p>
             <p className="text-sm text-slate-500">Try a different search term or check back later.</p>
           </div>
         ) : (

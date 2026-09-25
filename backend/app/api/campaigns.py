@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.models.models import Campaign, Slot, Registration, User
 from app.schemas.schemas import CampaignCreate, CampaignResponse, CampaignStatusUpdate, SlotResponse, CampaignUpdate
-from app.api.auth import get_current_user, get_current_active_admin, get_current_organizer_or_admin
+from app.api.auth import get_current_user, get_current_active_admin, get_current_organizer
 from app.services.audit_service import audit_service
 from app.services.ml_service import ml_service
 
@@ -115,7 +115,7 @@ def get_all_campaigns_admin(
 @router.get("/organizer/mine", response_model=List[CampaignResponse])
 def get_my_campaigns_organizer(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_organizer_or_admin)
+    current_user: User = Depends(get_current_organizer)
 ):
     campaigns = db.query(Campaign).filter(Campaign.organizer_id == current_user.id).order_by(Campaign.created_at.desc()).all()
     return [enrich_campaign_response(c, db) for c in campaigns]
@@ -131,7 +131,7 @@ def get_campaign_by_id(campaign_id: str, db: Session = Depends(get_db)):
 def create_campaign(
     campaign_in: CampaignCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_organizer_or_admin)
+    current_user: User = Depends(get_current_organizer)
 ):
     """
     Create campaign. Automatically segments time windows into slots and sets status to pending_verification.
@@ -209,7 +209,7 @@ def update_campaign(
     campaign_id: str,
     camp_in: CampaignUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_organizer_or_admin)
+    current_user: User = Depends(get_current_organizer)
 ):
     camp = db.query(Campaign).filter(Campaign.id == campaign_id).first()
     if not camp:

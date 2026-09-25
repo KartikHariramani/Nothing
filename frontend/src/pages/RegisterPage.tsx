@@ -48,8 +48,8 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ setCurrentTab }) => 
           <UserPlus className="w-8 h-8 text-brand-600" />
         </div>
         <div>
-          <h1 className="text-3xl font-extrabold text-white">Join Life Share</h1>
-          <p className="text-slate-400 mt-2">Create your account and start saving lives</p>
+          <h1 className="text-3xl font-extrabold text-navy-900">Join Life Share</h1>
+          <p className="text-slate-500 mt-2">Create your account and start saving lives</p>
         </div>
       </div>
 

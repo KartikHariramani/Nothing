@@ -62,7 +62,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
   };
 
   return (
-    <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? 'bg-slate-950/95 backdrop-blur-md border-b border-slate-800 shadow-sm' : 'bg-transparent border-b border-transparent'}`}>
+    <nav className="fixed top-0 w-full z-50 transition-all duration-300 bg-slate-950/95 backdrop-blur-md border-b border-slate-800 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}

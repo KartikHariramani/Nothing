@@ -82,6 +82,14 @@ export const authService = {
   updatePassword: async (passwordData: { current_password: string; new_password: string }) => {
     const res = await api.post('/auth/update-password', passwordData);
     return res.data;
+  },
+  getAdminUsers: async (): Promise<User[]> => {
+    const res = await api.get('/auth/admin/users');
+    return res.data;
+  },
+  updateUserRole: async (userId: string, role: string): Promise<User> => {
+    const res = await api.put(`/auth/admin/users/${userId}/role`, null, { params: { role } });
+    return res.data;
   }
 };
 

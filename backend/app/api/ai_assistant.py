@@ -4,7 +4,7 @@ from app.core.database import get_db
 from app.schemas.schemas import AIAssistantRequest, AIAssistantResponse
 from app.models.models import Campaign, Registration, Attendance
 from app.services.ollama_service import ollama_service
-from app.api.auth import get_current_organizer_or_admin
+from app.api.auth import get_current_organizer
 
 router = APIRouter(prefix="/ai-assistant", tags=["Organizer AI Assistant"])
 
@@ -12,7 +12,7 @@ router = APIRouter(prefix="/ai-assistant", tags=["Organizer AI Assistant"])
 async def query_ai_assistant(
     query_in: AIAssistantRequest,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_organizer_or_admin)
+    current_user = Depends(get_current_organizer)
 ):
     """
     AI Campaign Assistant answering organizer queries using local Ollama (Qwen) with resilient rule-based fallback.

@@ -24,14 +24,19 @@ def get_current_active_admin(current_user: User = Depends(get_current_user)) -> 
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin privileges required")
     return current_user
 
-def get_current_organizer_or_admin(current_user: User = Depends(get_current_user)) -> User:
-    if current_user.role not in ["organizer", "admin"]:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Organizer or Admin access required")
+def get_current_organizer(current_user: User = Depends(get_current_user)) -> User:
+    if current_user.role != "organizer":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Organizer access required")
     return current_user
 
-def get_current_volunteer_or_admin(current_user: User = Depends(get_current_user)) -> User:
-    if current_user.role not in ["volunteer", "admin"]:
+def get_current_volunteer(current_user: User = Depends(get_current_user)) -> User:
+    if current_user.role != "volunteer":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Volunteer check-in access required")
+    return current_user
+
+def get_scanner_role(current_user: User = Depends(get_current_user)) -> User:
+    if current_user.role not in ["volunteer", "organizer"]:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Scanner privileges required")
     return current_user
 
 @router.post("/register", response_model=Token)
@@ -160,3 +165,37 @@ def update_password(
     )
 
     return {"message": "Password updated successfully"}
+
+@router.get("/admin/users", response_model=list[UserResponse])
+def get_all_users(db: Session = Depends(get_db), current_admin: User = Depends(get_current_active_admin)):
+    users = db.query(User).all()
+    return users
+
+@router.put("/admin/users/{user_id}/role", response_model=UserResponse)
+def update_user_role(
+    user_id: str,
+    role: str,
+    db: Session = Depends(get_db),
+    current_admin: User = Depends(get_current_active_admin)
+):
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    before_role = user.role
+    user.role = role
+    db.commit()
+    db.refresh(user)
+
+    audit_service.log_event(
+        db=db,
+        action="admin.user_role_updated",
+        entity_type="user",
+        entity_id=user.id,
+        actor_id=current_admin.id,
+        actor_role=current_admin.role,
+        before_state={"role": before_role},
+        after_state={"role": role}
+    )
+
+    return user

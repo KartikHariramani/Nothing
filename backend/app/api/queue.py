@@ -2,7 +2,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from app.core.database import get_db
-from app.api.auth import get_current_organizer_or_admin, get_current_user
+from app.api.auth import get_current_organizer, get_current_user
 from app.models.models import User
 from app.services.queue_service import queue_engine
 

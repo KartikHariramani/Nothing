@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.models.models import Campaign, Registration, Attendance, User, Slot, AuditLog
 from app.schemas.schemas import CampaignAnalytics
-from app.api.auth import get_current_organizer_or_admin, get_current_active_admin, get_current_user
+from app.api.auth import get_current_organizer, get_current_active_admin, get_current_user
 
 router = APIRouter(prefix="/analytics", tags=["Analytics & Insights"])
 

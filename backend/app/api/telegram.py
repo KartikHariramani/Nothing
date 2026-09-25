@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.models.models import Registration, MessageLog, User
 from app.schemas.schemas import MessageResponse
-from app.api.auth import get_current_user, get_current_organizer_or_admin
+from app.api.auth import get_current_user, get_current_organizer
 from app.services.telegram_service import telegram_service
 from app.services.queue_service import queue_engine
 from app.services.audit_service import audit_service
@@ -101,7 +101,7 @@ async def send_reminder(
     registration_id: str,
     reminder_type: str = "t_minus_1_reminder",
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_organizer_or_admin)
+    current_user: User = Depends(get_current_organizer)
 ):
     reg = db.query(Registration).filter(Registration.id == registration_id).first()
     if not reg:
